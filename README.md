@@ -1,6 +1,11 @@
 # st-housing
 
-Player housing system for RedM (RSGCore framework). Players purchase building plans, place a ghost prop in the world, deposit crafted materials to complete construction, and then furnish and manage their property.
+Player housing system for RedM (RSGCore framework).
+This script is using free house models provided by favmathx  [Three Houses Pack](https://forum.cfx.re/t/free-three-houses-pack-custom-vanilla/5372803)
+
+Currently only first House is configured, going to add the rest of the free houses from this pack later. 
+
+Players purchase building plans, place a ghost prop in the world, deposit crafted materials to complete construction, and then furnish and manage their property.
 
 ---
 
