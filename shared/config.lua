@@ -1,6 +1,6 @@
 Config = Config or {}
 Config.PlayerProps = {}
-Config.Debug = true -- set true only for local development, allows you to insta build placed house
+Config.Debug = false -- set true only for local development, allows you to insta build placed house
 
 -- =============================================
 -- PLACEMENT SETTINGS
