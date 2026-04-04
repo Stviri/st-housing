@@ -1,0 +1,2 @@
+-- Rain suppression / interior zone system removed.
+-- File kept as placeholder; no longer loaded (removed from fxmanifest.lua).

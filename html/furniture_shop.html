@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Furniture Shop</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: transparent;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    user-select: none;
+}
+
+#app {
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
+/* ── LEFT PANEL ────────────────────────────────────────────────────── */
+#left-panel {
+    position: absolute;
+    left: 0; top: 0;
+    width: 26vw;
+    height: calc(100vh - 76px);
+    background: rgba(9, 5, 1, 0.97);
+    border-right: 1px solid #5c3a0c;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+#shop-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid #3a2208;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    background: rgba(20, 10, 2, 0.6);
+}
+#shop-title {
+    font-size: 17px;
+    color: #c9922a;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+#close-btn {
+    background: none;
+    border: 1px solid #3a2208;
+    color: #7a4e18;
+    cursor: pointer;
+    font-size: 14px;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    line-height: 1;
+}
+#close-btn:hover {
+    border-color: #c9922a;
+    color: #c9922a;
+    background: rgba(201, 146, 42, 0.1);
+}
+
+/* Category tabs */
+#cat-section {
+    flex-shrink: 0;
+    padding: 10px 10px 8px;
+    border-bottom: 1px solid #2a1504;
+}
+#cat-section-label {
+    font-size: 9px;
+    color: #4a2e0a;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+    padding-left: 4px;
+}
+#cat-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-height: 96px;
+    overflow-y: auto;
+}
+#cat-list::-webkit-scrollbar { width: 3px; }
+#cat-list::-webkit-scrollbar-thumb { background: #3a2208; border-radius: 2px; }
+
+.cat-btn {
+    background: rgba(201, 146, 42, 0.06);
+    border: 1px solid #2a1504;
+    color: #7a5020;
+    font-size: 11px;
+    padding: 4px 9px;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+.cat-btn:hover {
+    background: rgba(201, 146, 42, 0.12);
+    color: #c9922a;
+    border-color: #5c3a0c;
+}
+.cat-btn.active {
+    background: rgba(201, 146, 42, 0.18);
+    border-color: #c9922a;
+    color: #e2b660;
+}
+
+/* Item list */
+#items-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+#items-section-label {
+    font-size: 9px;
+    color: #4a2e0a;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 9px 16px 5px;
+    flex-shrink: 0;
+}
+#item-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 6px 6px;
+}
+#item-list::-webkit-scrollbar { width: 3px; }
+#item-list::-webkit-scrollbar-thumb { background: #3a2208; border-radius: 2px; }
+#item-list::-webkit-scrollbar-track { background: transparent; }
+
+.item-entry {
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #8a6030;
+    font-size: 11.5px;
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid rgba(60, 35, 8, 0.2);
+    transition: all 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.item-entry:hover {
+    background: rgba(201, 146, 42, 0.07);
+    color: #c9922a;
+    border-left-color: #5c3a0c;
+}
+.item-entry.selected {
+    background: rgba(201, 146, 42, 0.13);
+    color: #e2b660;
+    border-left-color: #c9922a;
+}
+
+/* ── RIGHT VIEWPORT (transparent — game renders through here) ─────── */
+#preview-area {
+    position: absolute;
+    left: 26vw;
+    right: 0;
+    top: 0;
+    bottom: 76px;
+    background: transparent;
+    cursor: grab;
+    z-index: 5;
+}
+#preview-area.dragging { cursor: grabbing; }
+
+#preview-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Hint text — bottom-right of viewport */
+#preview-hints {
+    position: absolute;
+    bottom: 18px;
+    right: 20px;
+    color: rgba(180, 130, 55, 0.45);
+    font-size: 11px;
+    text-align: right;
+    line-height: 1.9;
+    letter-spacing: 0.5px;
+}
+
+/* Loading spinner overlay inside viewport */
+#preview-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(201, 146, 42, 0.55);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    display: none;
+}
+
+/* "No item selected" watermark inside viewport */
+#preview-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(100, 65, 18, 0.35);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    pointer-events: none;
+    text-align: center;
+    line-height: 1.8;
+}
+
+/* ── BOTTOM BAR ────────────────────────────────────────────────────── */
+#bottom-bar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 76px;
+    background: rgba(7, 4, 1, 0.98);
+    border-top: 1px solid #3a2208;
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    gap: 18px;
+    z-index: 20;
+}
+
+#item-info {
+    flex: 1;
+    min-width: 0;
+}
+#info-placeholder {
+    color: #3a2208;
+    font-size: 13px;
+    font-style: italic;
+}
+#info-name {
+    color: #e2b660;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: none;
+}
+#info-model {
+    color: #3a2208;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    font-family: 'Courier New', monospace;
+    margin-top: 2px;
+    display: none;
+}
+
+/* Divider */
+.bar-sep {
+    width: 1px;
+    height: 36px;
+    background: #2a1504;
+    flex-shrink: 0;
+}
+
+#price-display {
+    color: #c9922a;
+    font-size: 20px;
+    white-space: nowrap;
+    min-width: 80px;
+    text-align: right;
+    display: none;
+}
+#price-sub {
+    color: #4a2e0a;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+    text-align: right;
+}
+
+#qty-group {
+    display: none;
+    align-items: center;
+    gap: 6px;
+}
+.qty-btn {
+    background: rgba(201, 146, 42, 0.08);
+    border: 1px solid #3a2208;
+    color: #c9922a;
+    font-size: 17px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s;
+    font-family: inherit;
+    line-height: 1;
+}
+.qty-btn:hover { background: rgba(201, 146, 42, 0.18); border-color: #c9922a; }
+#qty-val {
+    color: #e2b660;
+    font-size: 16px;
+    min-width: 22px;
+    text-align: center;
+}
+
+#buy-btn {
+    background: rgba(201, 146, 42, 0.12);
+    border: 1px solid #c9922a;
+    color: #c9922a;
+    font-size: 12px;
+    font-family: inherit;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 9px 26px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+#buy-btn:hover:not(:disabled) {
+    background: rgba(201, 146, 42, 0.28);
+    color: #ffd566;
+    border-color: #e2b660;
+}
+#buy-btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    border-color: #2a1504;
+    color: #3a2208;
+    background: transparent;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+    <!-- LEFT PANEL -->
+    <div id="left-panel">
+        <div id="shop-header">
+            <span id="shop-title">Furniture Shop</span>
+            <button id="close-btn" onclick="closeShop()">✕</button>
+        </div>
+
+        <div id="cat-section">
+            <div id="cat-section-label">Category</div>
+            <div id="cat-list"></div>
+        </div>
+
+        <div id="items-section">
+            <div id="items-section-label">Items</div>
+            <div id="item-list"></div>
+        </div>
+    </div>
+
+    <!-- RIGHT VIEWPORT (transparent — game world shows through) -->
+    <div id="preview-area">
+        <div id="preview-overlay">
+            <div id="preview-loading">Loading...</div>
+            <div id="preview-placeholder">
+                Select an item<br>to preview
+            </div>
+            <div id="preview-hints">
+                Drag to rotate<br>
+                Scroll to zoom
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM BAR (full width) -->
+    <div id="bottom-bar">
+        <div id="item-info">
+            <div id="info-placeholder">Select a furniture item</div>
+            <div id="info-name"></div>
+            <div id="info-model"></div>
+        </div>
+
+        <div class="bar-sep" id="sep1" style="display:none;"></div>
+
+        <div>
+            <div id="price-display"></div>
+            <div id="price-sub" style="display:none;">total</div>
+        </div>
+
+        <div class="bar-sep" id="sep2" style="display:none;"></div>
+
+        <div id="qty-group">
+            <button class="qty-btn" onclick="changeQty(-1)">−</button>
+            <span id="qty-val">1</span>
+            <button class="qty-btn" onclick="changeQty(+1)">+</button>
+        </div>
+
+        <button id="buy-btn" disabled onclick="buySelected()">Purchase</button>
+    </div>
+
+</div>
+
+<script>
+'use strict';
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let categories   = [];
+let selCatIdx    = 0;
+let selModel     = null;
+let selLabel     = '';
+let selPrice     = 0;
+let qty          = 1;
+
+// Camera drag state
+let dragging  = false;
+let lastX     = 0;
+let lastY     = 0;
+let pendingDx = 0;
+let pendingDy = 0;
+
+// ── NUI bridge ────────────────────────────────────────────────────────────────
+function nuiCb(name, data) {
+    return fetch(`https://st-housing/${name}`, {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body   : JSON.stringify(data || {}),
+    }).catch(() => {});
+}
+
+// ── Shop init (called when Lua sends openShop) ────────────────────────────────
+function initShop(cats) {
+    categories = cats;
+    selModel   = null;
+    qty        = 1;
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('preview-placeholder').style.display = 'block';
+    document.getElementById('preview-loading').style.display = 'none';
+
+    // Build category buttons
+    const catList = document.getElementById('cat-list');
+    catList.innerHTML = '';
+    cats.forEach((cat, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-btn' + (i === 0 ? ' active' : '');
+        btn.textContent = cat.label;
+        btn.addEventListener('click', () => selectCategory(i));
+        catList.appendChild(btn);
+    });
+
+    resetBottomBar();
+    if (cats.length > 0) selectCategory(0);
+}
+
+function selectCategory(idx) {
+    selCatIdx = idx;
+    document.querySelectorAll('.cat-btn').forEach((b, i) =>
+        b.classList.toggle('active', i === idx));
+
+    const cat      = categories[idx];
+    const itemList = document.getElementById('item-list');
+    itemList.innerHTML = '';
+    cat.props.forEach(prop => {
+        const div = document.createElement('div');
+        div.className   = 'item-entry' + (prop.model === selModel ? ' selected' : '');
+        div.textContent = prop.label;
+        div.dataset.model = prop.model;
+        div.addEventListener('click', () => selectItem(prop, div, prop.price));
+        itemList.appendChild(div);
+    });
+}
+
+async function selectItem(prop, el, price) {
+    // Highlight row
+    document.querySelectorAll('.item-entry').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+
+    selModel = prop.model;
+    selLabel = prop.label;
+    selPrice = price;
+    qty      = 1;
+
+    // Show loading in viewport
+    document.getElementById('preview-placeholder').style.display = 'none';
+    document.getElementById('preview-loading').style.display = 'block';
+
+    // Update bottom bar immediately (disable buy until preview ready)
+    document.getElementById('info-placeholder').style.display = 'none';
+    document.getElementById('info-name').style.display  = 'block';
+    document.getElementById('info-name').textContent    = selLabel;
+    document.getElementById('info-model').style.display = 'block';
+    document.getElementById('info-model').textContent   = prop.model;
+    document.getElementById('sep1').style.display       = 'block';
+    document.getElementById('price-display').style.display = 'block';
+    document.getElementById('price-sub').style.display  = 'block';
+    document.getElementById('sep2').style.display       = 'block';
+    document.getElementById('qty-group').style.display  = 'flex';
+    document.getElementById('buy-btn').disabled         = true;
+    document.getElementById('qty-val').textContent      = '1';
+    updatePrice();
+
+    // Ask Lua to spawn preview prop
+    await nuiCb('selectItem', { model: prop.model });
+
+    document.getElementById('preview-loading').style.display = 'none';
+    document.getElementById('buy-btn').disabled = false;
+}
+
+function resetBottomBar() {
+    document.getElementById('info-placeholder').style.display = 'block';
+    document.getElementById('info-name').style.display        = 'none';
+    document.getElementById('info-model').style.display       = 'none';
+    document.getElementById('sep1').style.display             = 'none';
+    document.getElementById('price-display').style.display    = 'none';
+    document.getElementById('price-sub').style.display        = 'none';
+    document.getElementById('sep2').style.display             = 'none';
+    document.getElementById('qty-group').style.display        = 'none';
+    document.getElementById('buy-btn').disabled               = true;
+}
+
+function updatePrice() {
+    const total = selPrice * qty;
+    document.getElementById('price-display').textContent = '$' + total;
+}
+
+function changeQty(delta) {
+    qty = Math.max(1, Math.min(10, qty + delta));
+    document.getElementById('qty-val').textContent = String(qty);
+    updatePrice();
+}
+
+async function buySelected() {
+    if (!selModel) return;
+    document.getElementById('buy-btn').disabled = true;
+    await nuiCb('buyFurniture', { model: selModel, qty: qty });
+    // Re-enable after brief pause so double-click doesn't double-buy
+    setTimeout(() => {
+        if (selModel) document.getElementById('buy-btn').disabled = false;
+    }, 800);
+}
+
+function closeShop() {
+    document.getElementById('app').style.display = 'none';
+    nuiCb('closeShop', {});
+}
+
+// ── Camera drag / zoom ────────────────────────────────────────────────────────
+const previewEl = document.getElementById('preview-area');
+
+previewEl.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    dragging = true;
+    lastX    = e.clientX;
+    lastY    = e.clientY;
+    previewEl.classList.add('dragging');
+});
+document.addEventListener('mouseup', () => {
+    dragging = false;
+    previewEl.classList.remove('dragging');
+});
+document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    pendingDx += e.clientX - lastX;
+    pendingDy += e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+});
+previewEl.addEventListener('wheel', e => {
+    e.preventDefault();
+    nuiCb('zoomCam', { delta: e.deltaY > 0 ? 1 : -1 });
+}, { passive: false });
+
+// Flush accumulated drag delta at ~60fps to avoid flooding Lua callbacks
+(function flushLoop() {
+    if (pendingDx !== 0 || pendingDy !== 0) {
+        nuiCb('rotateCam', { dx: pendingDx, dy: pendingDy });
+        pendingDx = 0;
+        pendingDy = 0;
+    }
+    requestAnimationFrame(flushLoop);
+})();
+
+// ── Lua → NUI messages ────────────────────────────────────────────────────────
+window.addEventListener('message', e => {
+    const data = e.data;
+    if (!data || !data.action) return;
+    switch (data.action) {
+        case 'openShop':
+            initShop(data.categories);
+            break;
+        case 'closeShop':
+            document.getElementById('app').style.display = 'none';
+            break;
+    }
+});
+
+// ESC to close
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeShop();
+});
+</script>
+</body>
+</html>
