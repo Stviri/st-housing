@@ -249,21 +249,47 @@ CreateThread(function()
 end)
 
 -- =============================================
--- SEND PLOTS TO PLAYER ON JOIN
+-- SEND PLOTS TO PLAYER ON CHARACTER SPAWN
+-- Uses RSGCore:Server:PlayerLoaded instead of playerJoining so the client is
+-- guaranteed to be in the game world before we ask it to create networked door
+-- entities. playerJoining fires at TCP connection time (character selection screen);
+-- CreateObjectNoOffset silently fails there, leaving PlotDoorEntities empty forever.
 -- =============================================
-AddEventHandler('playerJoining', function()
-    local src = source
+AddEventHandler('RSGCore:Server:PlayerLoaded', function(Player)
+    local src = Player.PlayerData.source
     CreateThread(function()
-        Wait(5000)
+        Wait(1000)
         TriggerClientEvent('st-housing:client:updatePropData', src, Config.PlayerProps)
 
+        -- Validate door entities: if the creating client disconnected, the networked
+        -- entities may have been cleaned up. Clear any stale entries so this joining
+        -- client re-creates them fresh, rather than receiving dead net IDs forever.
+        for plotId, entries in pairs(PlotDoorEntities) do
+            local stale = false
+            for _, e in ipairs(entries) do
+                local ent = NetworkGetEntityFromNetworkId(e.netId)
+                if not ent or ent == 0 or not DoesEntityExist(ent) then
+                    stale = true
+                    break
+                end
+            end
+            if stale then
+                PlotDoorEntities[plotId] = nil
+                local idx = PlotIndex[plotId]
+                if idx then
+                    PlotDoorPending[plotId] = Config.PlayerProps[idx]
+                end
+                if Config.Debug then
+                    print('^3[st-housing]^7 Stale door entities detected for plot ' .. plotId .. ' — re-queuing creation')
+                end
+            end
+        end
+
         local allPackets = {}
-        local packetCount = 0
         for plotId, _ in pairs(PlotDoorEntities) do
             local packet = GetDoorPacket(plotId)
             if packet then
                 allPackets[plotId] = packet
-                packetCount = packetCount + 1
             end
         end
         if next(allPackets) then

@@ -624,7 +624,6 @@ end)
 -- =============================================
 CreateThread(function()
     for agentIdx, agentData in ipairs(Config.HousingAgents) do
-        -- lib.requestModel matches rsg-shops pattern (handles timeout internally)
         lib.requestModel(agentData.model, 5000)
 
         if not HasModelLoaded(agentData.model) then
@@ -632,22 +631,8 @@ CreateThread(function()
             goto nextAgent
         end
 
-        -- Ask the engine for the exact ground Z at this XY position.
-        -- Start the raycast well above the given coords so it always hits terrain below.
-        -- RequestCollisionAtCoord ensures the terrain chunk is streamed before we query.
-        local ax, ay = agentData.coords.x, agentData.coords.y
-        RequestCollisionAtCoord(ax, ay, agentData.coords.z)
-        local groundFound, groundZ = false, agentData.coords.z
-        local attempts = 0
-        while not groundFound and attempts < 30 do
-            groundFound, groundZ = GetGroundZFor_3dCoord(ax, ay, agentData.coords.z + 150.0, true)
-            if not groundFound then Wait(200) end
-            attempts = attempts + 1
-        end
-        -- Fall back to a rough estimate if terrain never loaded (edge case)
-        local spawnZ = groundFound and groundZ or agentData.coords.z
-
-        local npc = CreatePed(agentData.model, ax, ay, spawnZ, agentData.coords.w, false, false, false, false)
+        local cx, cy, cz, cw = agentData.coords.x, agentData.coords.y, agentData.coords.z, agentData.coords.w
+        local npc = CreatePed(agentData.model, cx, cy, cz - 1, cw, false, false, false, false)
 
         -- SetRandomOutfitVariation is required — without it the ped has no outfit and appears invisible
         Citizen.InvokeNative(0x283978A15512B2FE, npc, true)

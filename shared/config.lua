@@ -104,7 +104,7 @@ Config.Houses = {
 Config.HousingAgents = {
     {
         label  = 'Valentine Housing Agent',
-        coords = vector4(-345.22, 797.07, 116.64, 98.34),
+        coords = vector4(-345.2200012207031, 797.0700073242188, 116.1496810913086, 98.34),
         model  = `A_M_M_ValFarmer_01`,
     },
 }
