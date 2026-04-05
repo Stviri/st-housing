@@ -39,7 +39,7 @@ dependencies {
     'oxmysql',
     'ox_target',
     'rsg-inventory',
-    'three_houses'
+    'three_houses',
 }
 
 lua54 'yes'
