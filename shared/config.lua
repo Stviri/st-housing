@@ -1,6 +1,6 @@
 Config = Config or {}
 Config.PlayerProps = {}
-Config.Debug = false -- set true only for local development, allows you to insta build placed house
+Config.Debug = true -- set true only for local development, allows you to insta build placed house
 
 -- =============================================
 -- PLACEMENT SETTINGS
@@ -94,6 +94,58 @@ Config.Houses = {
             },
         },
 
+    },
+
+    ['medium_wooden_cabin'] = {
+        label        = 'Medium Wooden Cabin',
+        propmodel    = 'free_house02',
+        price        = 2000,
+        planItem     = 'plan_medium_wooden_cabin',
+        storageSlots  = 30,
+        storageWeight = 500000,
+        taxPerDay     = 100,
+
+        totalMaterials = {
+            { item = 'wood_plank', amount = 200 },
+            { item = 'iron_nail',  amount = 250 },
+            { item = 'stone',      amount = 100 },
+            { item = 'glass_pane', amount = 20  },
+        },
+
+        windows = {
+            -- Offsets computed from house: -137.806, 491.765, 113.407  heading 108.760°
+            -- win1 / win2 / win5 / win6 — p_win_jts_clean3pane01x
+            { model = 'p_win_jts_clean3pane01x', offset = { x = -3.471, y =  1.373, z = -0.277, heading = -89.837 } },
+            { model = 'p_win_jts_clean3pane01x', offset = { x = -3.407, y = -3.067, z = -0.255, heading = -89.837 } },
+            { model = 'p_win_jts_clean3pane01x', offset = { x =  3.390, y = -3.030, z = -0.212, heading = -87.490 } },
+            { model = 'p_win_jts_clean3pane01x', offset = { x =  3.446, y = -1.579, z = -0.247, heading = -89.837 } },
+            -- win3 / win4 / win7 / win8 — p_win_jtm_clean01x
+            { model = 'p_win_jtm_clean01x',      offset = { x = -2.011, y = -5.028, z = -0.690, heading =   0.095 } },
+            { model = 'p_win_jtm_clean01x',      offset = { x =  0.964, y = -5.034, z = -0.699, heading =   0.095 } },
+            { model = 'p_win_jtm_clean01x',      offset = { x =  0.969, y =  4.852, z = -0.698, heading =   0.095 } },
+            { model = 'p_win_jtm_clean01x',      offset = { x = -2.008, y =  4.896, z = -0.671, heading =   0.095 } },
+        },
+
+        doors = {
+            {
+                model  = 'p_door10x',
+                offset = {
+                    x       = -3.352,
+                    y       = -0.122,
+                    z       = -1.468,
+                    heading = -89.944,
+                },
+            },
+            {
+                model  = 'p_door10x',
+                offset = {
+                    x       =  3.489,
+                    y       = -0.043,
+                    z       = -1.452,
+                    heading = -89.944,
+                },
+            },
+        },
     },
 }
 

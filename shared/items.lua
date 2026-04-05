@@ -6,7 +6,8 @@
 -- ============================================================
 
 -- Building Plans (one per house type in Config.Houses)
-plan_ranch_house  = { name = 'plan_ranch_house',  label = 'Wooden House Plan',  weight = 50,   type = 'item', image = 'plan_ranch_house.png',  unique = false, useable = true,  shouldClose = true,  description = 'A building plan for a wooden house. Use to enter placement mode.'                     },
+plan_ranch_house         = { name = 'plan_ranch_house',         label = 'Wooden House Plan',         weight = 50,   type = 'item', image = 'plan_ranch_house.png',         unique = false, useable = true,  shouldClose = true,  description = 'A building plan for a wooden house. Use to enter placement mode.'        },
+plan_medium_wooden_cabin = { name = 'plan_medium_wooden_cabin', label = 'Medium Wooden Cabin Plan',   weight = 50,   type = 'item', image = 'plan_medium_wooden_cabin.png', unique = false, useable = true,  shouldClose = true,  description = 'A building plan for a medium wooden cabin. Use to enter placement mode.' },
 
 -- Furniture (metadata-driven: prop model stored in item info)
 st_furniture      = { name = 'st_furniture',      label = 'Furniture',          weight = 500,  type = 'item', image = 'st_furniture.png',      unique = false, useable = true,  shouldClose = true,  description = 'A piece of furniture. Use to place it inside your property.'                          },

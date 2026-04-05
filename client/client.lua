@@ -655,7 +655,8 @@ CreateThread(function()
         for houseType, houseConfig in pairs(Config.Houses) do
             local matList = ''
             for _, mat in ipairs(houseConfig.totalMaterials) do
-                matList = matList .. mat.amount .. 'x ' .. mat.item .. '  '
+                local itemLabel = RSGCore.Shared.Items[mat.item] and RSGCore.Shared.Items[mat.item].label or mat.item
+                matList = matList .. mat.amount .. 'x ' .. itemLabel .. '  '
             end
             local capturedType = houseType
             table.insert(planOptions, {
